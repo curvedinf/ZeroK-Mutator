@@ -1,4 +1,4 @@
-import { MUTABLE_ATTRIBUTES } from './config.js';
+import { MUTABLE_ATTRIBUTES, REVERSED_ATTRIBUTES } from './config.js';
 
 function getNestedValue(obj, path) {
     return path.split('.').reduce((current, part) => current && current[part], obj);
@@ -99,11 +99,29 @@ function mutateUnit(unitData, multiplier) {
     // Create mutation object
     const mutations = {};
     
-    // Multiply first attribute by multiplier
-    setNestedValue(mutations, selectedAttrs[0][0], selectedAttrs[0][1] * multiplier);
+    // Helper to get the key from a path for checking reversed attributes
+    const getKey = (path) => {
+        const parts = path.split('.');
+        return parts[parts.length - 1];
+    };
     
-    // Divide second attribute by multiplier
-    setNestedValue(mutations, selectedAttrs[1][0], selectedAttrs[1][1] / multiplier);
+    // For each selected attribute, apply the appropriate multiplier
+    selectedAttrs.forEach(([path, value], index) => {
+        const key = getKey(path);
+        const isReversed = REVERSED_ATTRIBUTES.includes(key);
+        
+        // For reversed attributes, we want to divide when we would normally multiply
+        // and multiply when we would normally divide
+        if (index === 0) {
+            // First attribute normally gets multiplied
+            const newValue = isReversed ? value / multiplier : value * multiplier;
+            setNestedValue(mutations, path, newValue);
+        } else {
+            // Second attribute normally gets divided
+            const newValue = isReversed ? value * multiplier : value / multiplier;
+            setNestedValue(mutations, path, newValue);
+        }
+    });
     
     console.log('Generated mutations:', mutations);
     return mutations;
