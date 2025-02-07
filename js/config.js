@@ -11,6 +11,7 @@ export const VALID_PREFIXES = [
 export const MUTABLE_ATTRIBUTES = [
     'speed', 'metalCost', 'range', 'reloadtime',
     'default', 'areaOfEffect', 'health', 'shieldPower',
+    'shieldPowerRegen', 'buildDistance'
 ];
 
 // Attributes where a higher value is worse (will be reversed in mutations)
