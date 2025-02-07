@@ -2,19 +2,35 @@ import { fetchAllUnits } from './unitFetcher.js';
 import { generateMutations } from './mutator.js';
 import { generateLuaTable, base64Encode } from './parser.js';
 
-// Add slider update handler
-function updateMultiplierValue() {
-    const multiplier = document.getElementById('multiplier');
-    const multiplierValue = document.getElementById('multiplierValue');
-    multiplierValue.textContent = parseFloat(multiplier.value).toFixed(1);
-}
+// Update multiplier value display
+const multiplierSlider = document.getElementById('multiplier');
+const multiplierValue = document.getElementById('multiplierValue');
+multiplierSlider.addEventListener('input', () => {
+    multiplierValue.textContent = parseFloat(multiplierSlider.value).toFixed(1);
+});
+
+// Update nerf ratio value display
+const nerfRatioSlider = document.getElementById('nerfRatio');
+const nerfRatioValue = document.getElementById('nerfRatioValue');
+nerfRatioSlider.addEventListener('input', () => {
+    nerfRatioValue.textContent = parseFloat(nerfRatioSlider.value).toFixed(1);
+});
+
+// Update units per factory value display
+const unitsPerFactorySlider = document.getElementById('unitsPerFactory');
+const unitsPerFactoryValue = document.getElementById('unitsPerFactoryValue');
+unitsPerFactorySlider.addEventListener('input', () => {
+    unitsPerFactoryValue.textContent = Math.round(parseFloat(unitsPerFactorySlider.value));
+});
 
 export async function handleGenerateMutations() {
     const status = document.getElementById('status');
     const output = document.getElementById('output');
     const generateBtn = document.getElementById('generateBtn');
     const copyBtn = document.getElementById('copyBtn');
-    const multiplier = parseFloat(document.getElementById('multiplier').value);
+    const multiplier = parseFloat(multiplierSlider.value);
+    const nerfRatio = parseFloat(nerfRatioSlider.value);
+    const unitsPerFactory = parseFloat(unitsPerFactorySlider.value) / 100; // Convert to decimal
     
     try {
         // Disable buttons while generating
@@ -26,7 +42,7 @@ export async function handleGenerateMutations() {
         const unitData = await fetchAllUnits();
         
         status.textContent = 'Generating mutations...';
-        const allMutations = generateMutations(unitData, multiplier);
+        const allMutations = generateMutations(unitData, multiplier, nerfRatio, unitsPerFactory);
 
         // Generate Lua table string
         const luaTableStr = generateLuaTable(allMutations);
@@ -67,6 +83,3 @@ export function handleCopyToClipboard() {
             console.error('Failed to copy:', err);
         });
 }
-
-// Initialize slider
-document.getElementById('multiplier').addEventListener('input', updateMultiplierValue);

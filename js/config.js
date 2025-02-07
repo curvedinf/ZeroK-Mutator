@@ -4,17 +4,17 @@ export const API_BASE = 'https://api.github.com/repos/ZeroK-RTS/Zero-K/contents/
 export const VALID_PREFIXES = [
     'amph', 'shield', 'cloak', 'gunship', 'jump', 
     'ship', 'hover', 'veh', 'tank', 'chicken', 
-    'plane', 'spider', 'strider'
+    'plane', 'spider', 'strider', 'turret'
 ];
 
 // Numeric attributes that can be mutated
 export const MUTABLE_ATTRIBUTES = [
     'speed', 'metalCost', 'range', 'reloadtime',
-    'damage', 'areaOfEffect', 'health', 'shield',
+    'default', 'areaOfEffect', 'health', 'shieldPower',
 ];
 
 // Attributes where a higher value is worse (will be reversed in mutations)
 export const REVERSED_ATTRIBUTES = [
     'metalCost',
-    'reloadTime',
+    'reloadtime',
 ];
