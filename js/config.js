@@ -25,14 +25,44 @@ export const REVERSED_ATTRIBUTES = [
 ];
 
 export const MUTATION_THEMES = {
-    "Speed Kills": ["speed", "turnRate", "reloadtime"],
-    "Tanky": ["health", "shieldPower", "metalCost"],
-    "Economic": ["metalCost", "buildTime"],
-    "Glass Cannon": ["default", "weaponVelocity", "health"],
-    "Artillery": ["range", "areaOfEffect"],
-    "Fast & Furious": ["speed", "acceleration"],
-    "Resource Hog": ["metalCost", "energyCost"],
-    "Scout": ["sightDistance", "speed"],
-    "Heavy Hitter": ["default", "impulseFactor"],
-    "Fortress": ["health", "range"]
+    "Speed Kills": {
+        positive_attributes: ["speed", "turnRate"],
+        negative_attributes: ["reloadtime"]
+    },
+    "Tanky": {
+        positive_attributes: ["health", "shieldPower"],
+        negative_attributes: ["metalCost"]
+    },
+    "Economic": {
+        positive_attributes: [],
+        negative_attributes: ["metalCost", "buildTime"]
+    },
+    "Glass Cannon": {
+        positive_attributes: ["default", "weaponVelocity", "health"],
+        negative_attributes: []
+    },
+    "Artillery": {
+        positive_attributes: ["range", "areaOfEffect"],
+        negative_attributes: []
+    },
+    "Fast & Furious": {
+        positive_attributes: ["speed", "acceleration"],
+        negative_attributes: []
+    },
+    "Resource Hog": {
+        positive_attributes: [],
+        negative_attributes: ["metalCost", "energyCost"]
+    },
+    "Scout": {
+        positive_attributes: ["sightDistance", "speed"],
+        negative_attributes: []
+    },
+    "Heavy Hitter": {
+        positive_attributes: ["default", "impulseFactor"],
+        negative_attributes: []
+    },
+    "Fortress": {
+        positive_attributes: ["health", "range"],
+        negative_attributes: []
+    }
 };

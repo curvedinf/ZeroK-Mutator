@@ -8,6 +8,8 @@ const multiplierSlider = document.getElementById('multiplier');
 const multiplierValue = document.getElementById('multiplierValue');
 const attributesPerUnitSlider = document.getElementById('attributesPerUnit');
 const attributesPerUnitValue = document.getElementById('attributesPerUnitValue');
+const negativeAttributesPerUnitSlider = document.getElementById('negativeAttributesPerUnit');
+const negativeAttributesPerUnitValue = document.getElementById('negativeAttributesPerUnitValue');
 const unitsPerFactorySlider = document.getElementById('unitsPerFactory');
 const unitsPerFactoryValue = document.getElementById('unitsPerFactoryValue');
 const mutationModeRadios = document.querySelectorAll('input[name="mutationMode"]');
@@ -16,7 +18,22 @@ const themeCheckboxesContainer = document.getElementById('theme-checkboxes');
 
 // Populate theme checkboxes
 Object.keys(MUTATION_THEMES).forEach(themeName => {
+    const theme = MUTATION_THEMES[themeName];
+    const positiveAttrs = theme.positive_attributes.join(', ');
+    const negativeAttrs = theme.negative_attributes.join(', ');
+    let tooltipText = '';
+    if (positiveAttrs) {
+        tooltipText += `Positive: ${positiveAttrs}`;
+    }
+    if (negativeAttrs) {
+        if (tooltipText) {
+            tooltipText += '\n';
+        }
+        tooltipText += `Negative: ${negativeAttrs}`;
+    }
+
     const label = document.createElement('label');
+    label.title = tooltipText;
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.name = 'themes';
@@ -34,6 +51,10 @@ multiplierSlider.addEventListener('input', () => {
 
 attributesPerUnitSlider.addEventListener('input', () => {
     attributesPerUnitValue.textContent = attributesPerUnitSlider.value;
+});
+
+negativeAttributesPerUnitSlider.addEventListener('input', () => {
+    negativeAttributesPerUnitValue.textContent = negativeAttributesPerUnitSlider.value;
 });
 
 unitsPerFactorySlider.addEventListener('input', () => {
@@ -58,6 +79,7 @@ export async function handleGenerateMutations() {
 
     const multiplier = parseFloat(multiplierSlider.value);
     const attributesPerUnit = parseInt(attributesPerUnitSlider.value, 10);
+    const negativeAttributesPerUnit = parseInt(negativeAttributesPerUnitSlider.value, 10);
     const unitsPerFactory = parseFloat(unitsPerFactorySlider.value) / 100;
     const mutationMode = document.querySelector('input[name="mutationMode"]:checked').value;
     
@@ -84,6 +106,7 @@ export async function handleGenerateMutations() {
         const allMutations = generateMutations(unitData, {
             multiplier,
             attributesPerUnit,
+            negativeAttributesPerUnit,
             unitsPerFactory,
             mutationMode,
             selectedThemes

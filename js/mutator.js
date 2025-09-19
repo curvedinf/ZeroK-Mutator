@@ -31,12 +31,17 @@ function selectRandomUnits(units, count) {
 }
 
 function findMutableAttributes(unitData, theme) {
-    const attributes = [];
-    const targetAttributes = theme ? MUTATION_THEMES[theme] : MUTABLE_ATTRIBUTES;
+    const positiveAttributes = [];
+    const negativeAttributes = [];
 
-    const isValidAttribute = (key) => {
-        return targetAttributes.includes(key);
-    };
+    let targetPositive = MUTABLE_ATTRIBUTES.filter(attr => !REVERSED_ATTRIBUTES.includes(attr));
+    let targetNegative = REVERSED_ATTRIBUTES;
+
+    if (theme) {
+        const themeConfig = MUTATION_THEMES[theme];
+        targetPositive = themeConfig.positive_attributes;
+        targetNegative = themeConfig.negative_attributes;
+    }
 
     const processValue = (value, path, key) => {
         if (typeof value === 'object' && value !== null) {
@@ -46,20 +51,18 @@ function findMutableAttributes(unitData, theme) {
             }
         } else if (typeof value === 'number') {
             const pathParts = path.split('.');
-            const parentPath = pathParts.length > 1 ? pathParts[0] : '';
-            const attrKey = pathParts[pathParts.length -1];
+            const attrKey = pathParts[pathParts.length - 1];
 
-            if (parentPath === 'weaponDefs' && isValidAttribute(attrKey)) {
-                attributes.push([path, value]);
-            }
-            else if (pathParts.length === 1 && isValidAttribute(attrKey)) {
-                attributes.push([key, value]);
+            if (targetPositive.includes(attrKey)) {
+                positiveAttributes.push([path, value]);
+            } else if (targetNegative.includes(attrKey)) {
+                negativeAttributes.push([path, value]);
             }
         }
     };
     
     processValue(unitData, '', '');
-    return attributes;
+    return { positiveAttributes, negativeAttributes };
 }
 
 function setNestedValue(obj, path, value) {
@@ -75,19 +78,22 @@ function setNestedValue(obj, path, value) {
     current[parts[parts.length - 1]] = value;
 }
 
-function mutateUnit(unitData, { multiplier, attributesPerUnit, theme }) {
-    const numericAttributes = findMutableAttributes(unitData, theme);
+function mutateUnit(unitData, { multiplier, attributesPerUnit, negativeAttributesPerUnit, theme }) {
+    const { positiveAttributes, negativeAttributes } = findMutableAttributes(unitData, theme);
 
-    if (numericAttributes.length < attributesPerUnit) {
+    if (positiveAttributes.length < attributesPerUnit || negativeAttributes.length < negativeAttributesPerUnit) {
         return null;
     }
 
-    const selectedAttrs = selectRandomUnits(numericAttributes, attributesPerUnit);
+    const selectedPositiveAttrs = selectRandomUnits(positiveAttributes, attributesPerUnit);
+    const selectedNegativeAttrs = selectRandomUnits(negativeAttributes, negativeAttributesPerUnit);
+
+    const allSelectedAttrs = [...selectedPositiveAttrs, ...selectedNegativeAttrs];
     const mutations = {};
 
     const getKey = (path) => path.split('.').pop();
 
-    selectedAttrs.forEach(([path, value], index) => {
+    allSelectedAttrs.forEach(([path, value], index) => {
         const key = getKey(path);
         const isReversed = REVERSED_ATTRIBUTES.includes(key);
         
@@ -104,7 +110,7 @@ function mutateUnit(unitData, { multiplier, attributesPerUnit, theme }) {
 }
 
 export function generateMutations(unitData, options) {
-    const { multiplier, attributesPerUnit, unitsPerFactory, mutationMode, selectedThemes } = options;
+    const { multiplier, attributesPerUnit, negativeAttributesPerUnit, unitsPerFactory, mutationMode, selectedThemes } = options;
     
     const factoryGroups = groupUnitsByFactory(unitData);
     const allMutations = {};
@@ -119,7 +125,7 @@ export function generateMutations(unitData, options) {
                 theme = selectedThemes[Math.floor(Math.random() * selectedThemes.length)];
             }
 
-            const mutations = mutateUnit(unit, { multiplier, attributesPerUnit, theme });
+            const mutations = mutateUnit(unit, { multiplier, attributesPerUnit, negativeAttributesPerUnit, theme });
             if (mutations) {
                 allMutations[unitName] = mutations;
             }
