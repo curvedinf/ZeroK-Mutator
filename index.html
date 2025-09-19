@@ -133,6 +133,11 @@
             <div class="slider-description">Number of attributes to mutate per unit (from 1 to 5)</div>
         </div>
         <div class="slider-container">
+            <label for="negativeAttributesPerUnit">Negative Attributes To Mutate: <span id="negativeAttributesPerUnitValue">1</span></label>
+            <input type="range" id="negativeAttributesPerUnit" min="0" max="3" step="1" value="1">
+            <div class="slider-description">Number of negative attributes to mutate per unit (from 0 to 3)</div>
+        </div>
+        <div class="slider-container">
             <label for="unitsPerFactory">Units Per Factory: <span id="unitsPerFactoryValue">100</span>%</label>
             <input type="range" id="unitsPerFactory" min="1" max="100" step="1" value="100">
             <div class="ratio-description">Percentage of units to modify from each factory type</div>
