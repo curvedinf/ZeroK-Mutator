@@ -93,6 +93,10 @@ export function parseLuaTable(content) {
 }
 
 export function generateLuaTable(data) {
+    if (Object.keys(data).length === 0) {
+        return 'return {}';
+    }
+
     function stringifyValue(value) {
         if (typeof value === 'number') return value.toString();
         if (typeof value === 'boolean') return value.toString();
@@ -105,12 +109,13 @@ export function generateLuaTable(data) {
     function stringifyTable(table) {
         const parts = [];
         for (const [key, value] of Object.entries(table)) {
-            parts.push(`${key} = ${stringifyValue(value)},`);
+            const keyStr = `["${key}"]`;
+            parts.push(`${keyStr} = ${stringifyValue(value)}`);
         }
-        return `{${parts.join(' ')}}`;
+        return `{${parts.join(', ')}}`;
     }
 
-    return stringifyTable(data);
+    return `return ${stringifyTable(data)}`;
 }
 
 export function base64Encode(str) {

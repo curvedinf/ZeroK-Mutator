@@ -1,26 +1,53 @@
 import { fetchAllUnits } from './unitFetcher.js';
 import { generateMutations } from './mutator.js';
 import { generateLuaTable, base64Encode } from './parser.js';
+import { MUTATION_THEMES } from './config.js';
 
-// Update multiplier value display
+// DOM elements
 const multiplierSlider = document.getElementById('multiplier');
 const multiplierValue = document.getElementById('multiplierValue');
-multiplierSlider.addEventListener('input', () => {
-    multiplierValue.textContent = parseFloat(multiplierSlider.value).toFixed(1);
-});
-
-// Update nerf ratio value display
-const nerfRatioSlider = document.getElementById('nerfRatio');
-const nerfRatioValue = document.getElementById('nerfRatioValue');
-nerfRatioSlider.addEventListener('input', () => {
-    nerfRatioValue.textContent = parseFloat(nerfRatioSlider.value).toFixed(1);
-});
-
-// Update units per factory value display
+const attributesPerUnitSlider = document.getElementById('attributesPerUnit');
+const attributesPerUnitValue = document.getElementById('attributesPerUnitValue');
 const unitsPerFactorySlider = document.getElementById('unitsPerFactory');
 const unitsPerFactoryValue = document.getElementById('unitsPerFactoryValue');
+const mutationModeRadios = document.querySelectorAll('input[name="mutationMode"]');
+const themeSelection = document.getElementById('theme-selection');
+const themeCheckboxesContainer = document.getElementById('theme-checkboxes');
+
+// Populate theme checkboxes
+Object.keys(MUTATION_THEMES).forEach(themeName => {
+    const label = document.createElement('label');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.name = 'themes';
+    checkbox.value = themeName;
+    checkbox.checked = true;
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(themeName));
+    themeCheckboxesContainer.appendChild(label);
+});
+
+// Event Listeners
+multiplierSlider.addEventListener('input', () => {
+    multiplierValue.textContent = parseFloat(multiplierSlider.value).toFixed(3);
+});
+
+attributesPerUnitSlider.addEventListener('input', () => {
+    attributesPerUnitValue.textContent = attributesPerUnitSlider.value;
+});
+
 unitsPerFactorySlider.addEventListener('input', () => {
     unitsPerFactoryValue.textContent = Math.round(parseFloat(unitsPerFactorySlider.value));
+});
+
+mutationModeRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+        if (radio.value === 'theme') {
+            themeSelection.style.display = 'block';
+        } else {
+            themeSelection.style.display = 'none';
+        }
+    });
 });
 
 export async function handleGenerateMutations() {
@@ -28,12 +55,24 @@ export async function handleGenerateMutations() {
     const output = document.getElementById('output');
     const generateBtn = document.getElementById('generateBtn');
     const copyBtn = document.getElementById('copyBtn');
+
     const multiplier = parseFloat(multiplierSlider.value);
-    const nerfRatio = parseFloat(nerfRatioSlider.value);
-    const unitsPerFactory = parseFloat(unitsPerFactorySlider.value) / 100; // Convert to decimal
+    const attributesPerUnit = parseInt(attributesPerUnitSlider.value, 10);
+    const unitsPerFactory = parseFloat(unitsPerFactorySlider.value) / 100;
+    const mutationMode = document.querySelector('input[name="mutationMode"]:checked').value;
     
+    let selectedThemes = [];
+    if (mutationMode === 'theme') {
+        document.querySelectorAll('input[name="themes"]:checked').forEach(checkbox => {
+            selectedThemes.push(checkbox.value);
+        });
+        if (selectedThemes.length === 0) {
+            status.textContent = 'Error: Please select at least one theme.';
+            return;
+        }
+    }
+
     try {
-        // Disable buttons while generating
         generateBtn.disabled = true;
         copyBtn.disabled = true;
         output.value = '';
@@ -42,27 +81,25 @@ export async function handleGenerateMutations() {
         const unitData = await fetchAllUnits();
         
         status.textContent = 'Generating mutations...';
-        const allMutations = generateMutations(unitData, multiplier, nerfRatio, unitsPerFactory);
+        const allMutations = generateMutations(unitData, {
+            multiplier,
+            attributesPerUnit,
+            unitsPerFactory,
+            mutationMode,
+            selectedThemes
+        });
 
-        // Generate Lua table string
         const luaTableStr = generateLuaTable(allMutations);
-        
-        // Encode to base64
         const encoded = base64Encode(luaTableStr);
         
-        // Display result
         output.value = encoded;
-        
         status.textContent = 'Mutations generated successfully! Click "Copy to Clipboard" to use in Zero-K.';
-        
-        // Enable copy button
         copyBtn.disabled = false;
         
     } catch (error) {
         status.textContent = 'Error: ' + error.message;
         console.error('Error:', error);
     } finally {
-        // Re-enable generate button
         generateBtn.disabled = false;
     }
 }

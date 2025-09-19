@@ -123,19 +123,27 @@
             </ul>
         </div>
         <div class="slider-container">
-            <label for="multiplier">Mutation Strength: <span id="multiplierValue">2.0</span>x</label>
-            <input type="range" id="multiplier" min="1" max="100" step="1" value="2.0">
-            <div class="slider-description">Controls how much attributes are multiplied/divided (from 1x to 100x)</div>
+            <label for="multiplier">Mutation Strength: <span id="multiplierValue">2.000</span>x</label>
+            <input type="range" id="multiplier" min="1" max="10" step="0.001" value="2.0">
+            <div class="slider-description">Controls how much attributes are multiplied/divided (from 1x to 10x, in 0.1% increments)</div>
         </div>
         <div class="slider-container">
-            <label for="nerfRatio">Nerf Ratio: <span id="nerfRatioValue">1.0</span>x</label>
-            <input type="range" id="nerfRatio" min="-1" max="2" step="0.1" value="1.0">
-            <div class="ratio-description">-1: Two buffs | 1: Equal buff/nerf | 2: Double nerf</div>
+            <label for="attributesPerUnit">Attributes to Mutate: <span id="attributesPerUnitValue">2</span></label>
+            <input type="range" id="attributesPerUnit" min="1" max="5" step="1" value="2">
+            <div class="slider-description">Number of attributes to mutate per unit (from 1 to 5)</div>
         </div>
         <div class="slider-container">
             <label for="unitsPerFactory">Units Per Factory: <span id="unitsPerFactoryValue">100</span>%</label>
             <input type="range" id="unitsPerFactory" min="1" max="100" step="1" value="100">
             <div class="ratio-description">Percentage of units to modify from each factory type</div>
+        </div>
+        <div class="mode-container">
+            <label><input type="radio" name="mutationMode" value="chaos" checked> Chaos Mode</label>
+            <label><input type="radio" name="mutationMode" value="theme"> Theme Mode</label>
+        </div>
+        <div id="theme-selection" style="display: none;">
+            <h4>Select Themes:</h4>
+            <div id="theme-checkboxes"></div>
         </div>
         <div class="button-container">
             <button onclick="handleGenerateMutations()" id="generateBtn">Generate Mutations</button>
