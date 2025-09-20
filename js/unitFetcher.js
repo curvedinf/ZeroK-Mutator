@@ -32,9 +32,8 @@ export async function fetchUnitContent(file) {
 
 export async function fetchAllUnits() {
     const unitFiles = await fetchUnitFiles();
-    const unitData = {};
     
-    for (const file of unitFiles) {
+    const promises = unitFiles.map(async (file) => {
         const content = await fetchUnitContent(file);
         const unitName = file.name.replace('.lua', '');
         const parsedData = parseLuaTable(content);
@@ -42,8 +41,11 @@ export async function fetchAllUnits() {
         // Merge the inner unit data with any top-level properties
         const innerUnitData = parsedData[unitName] || {};
         delete parsedData[unitName];  // Remove the inner duplicate
-        unitData[unitName] = { ...parsedData, ...innerUnitData };
-    }
+
+        return { [unitName]: { ...parsedData, ...innerUnitData } };
+    });
+
+    const results = await Promise.all(promises);
     
-    return unitData;
+    return results.reduce((acc, current) => ({ ...acc, ...current }), {});
 }
